@@ -1,25 +1,51 @@
 const Joi = require('joi');
 const express = require('express');
 const app = express();
+const swaggerUI = require("swagger-ui-express");
+const swaggerJSDoc = require('swagger-jsdoc');
+const open = require('open');
 const PORT = 3000;
 
+open(`http://localhost:${PORT}/api-docs`);
+
 app.use(express.json());
+
+const options = {
+    definition: {
+        openapi: "3.0.0",
+        info: {
+            title: "API Loja",
+            version: "1.0.0",
+            description: "Uma simples API baseada em um e-commerce."
+        },
+        servers: [
+            {
+                url: `http://localhost:${PORT}`
+            }
+        ]
+    },
+    apis: ["swagger.js"]
+};
+
+const specs = swaggerJSDoc(options);
+
+app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(specs));
 
 const catalogo = [
     {
         id: 1,
         produto: "camiseta",
-        preco: 30.00
+        preco: 30
     },
     {
         id: 2,
         produto: "calça jeans",
-        preco: 40.00
+        preco: 40
     },
     {
         id: 3,
         produto: "bermuda",
-        preco: 25.00
+        preco: 25
     }
 ];
 
@@ -30,7 +56,7 @@ const schema = {
 
 app.listen(PORT, () => console.log(`it's alive on http://localhost:${PORT}`));
 
-// REQUESTS
+// ENDPOINTS:
 app.get('/catalogo', (req, res) => {
     res.status(200).send({itens: catalogo});
 });
